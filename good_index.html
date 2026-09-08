@@ -2,31 +2,108 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Neon Glass Card</title>
+    <title>Holographic 3D Card</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             margin: 0; height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, #1f4068, #162447, #1a1a2e);
+            background: #090a0f;
             font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
         }
+
+        /* 배경에 은은하게 움직이는 오로라 효과 */
+        .bg-glow {
+            position: absolute; width: 400px; height: 400px;
+            background: linear-gradient(135deg, #ff007f, #7928ca, #00dfd8);
+            filter: blur(100px); opacity: 0.4;
+            border-radius: 50%; z-index: 0;
+            animation: floatGlow 8s ease-in-out infinite alternate;
+        }
+        @keyframes floatGlow {
+            0% { transform: translate(-100px, -100px) scale(0.9); }
+            100% { transform: translate(100px, 100px) scale(1.1); }
+        }
+
+        /* 3D 카드 본체 */
         .card {
-            position: relative; width: 320px; padding: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px; text-align: center; color: #fff;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            position: relative; width: 360px; padding: 50px 30px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px; text-align: center; color: #fff;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            z-index: 1;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+            cursor: pointer;
         }
-        .card h1 { margin: 0 0 10px; font-size: 24px; color: #00fff5; }
-        .card p { margin: 0; font-size: 14px; color: #a0aec0; line-height: 1.6; }
+
+        .card:hover {
+            box-shadow: 0 40px 80px rgba(0,223,216,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+
+        .card h1 {
+            margin: 0 0 15px; font-size: 28px; font-weight: 700;
+            background: linear-gradient(135deg, #00dfd8, #007cf0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateZ(40px);
+        }
+
+        .card p {
+            margin: 0; font-size: 15px; color: #a0aec0; line-height: 1.6;
+            transform: translateZ(20px);
+        }
+
+        /* 홀로그램 빛 반사 레이어 */
+        .holo-shine {
+            position: absolute; inset: 0; border-radius: 24px;
+            pointer-events: none; opacity: 0;
+            background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.25) 0%, transparent 70%);
+            transition: opacity 0.3s;
+        }
+        .card:hover .holo-shine { opacity: 1; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>SeSac 3기</h1>
-        <p>깃허브 페이지에 배포된<br>개쩌는 글래스모피즘 테스트 화면입니다.</p>
+    <div class="bg-glow"></div>
+    
+    <div class="card" id="card">
+        <div class="holo-shine"></div>
+        <h1>SeSesac 3기 🚀</h1>
+        <p>마우스 움직임에 반응하는<br>초기화면 홀로그램 3D 카드입니다.</p>
     </div>
+
+    <script>
+        const card = document.getElementById('card');
+
+        // 마우스 움직임에 따라 3D로 기울어지는 효과
+        document.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left; // 카드 내에서의 마우스 X
+            const y = e.clientY - rect.top;  // 카드 내에서의 마우스 Y
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = -(y - centerY) / 8; // 회전 각도 조절
+            const rotateY = (x - centerX) / 8;
+
+            card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+            // 홀로그램 빛 반사 좌표 업데이트
+            card.style.setProperty('--x', `${x}px`);
+            card.style.setProperty('--y', `${y}px`);
+        });
+
+        // 마우스가 화면 밖으로 나가면 원위치
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
 </body>
 </html>
